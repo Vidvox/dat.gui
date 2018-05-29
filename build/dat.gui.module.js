@@ -2309,6 +2309,7 @@ var ImageController = function (_Controller) {
     var defaultOptions = opts;
     _this.__controlContainer = document.createElement('div');
     dom.addClass(_this.__controlContainer, 'image-picker');
+    _this.videoStreams = [];
     _this.__selectedInputContainer = _this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(_this.__selectedInputContainer, 'selected-image');
     _this.__swatches = _this.__controlContainer.appendChild(document.createElement('div'));
@@ -2382,9 +2383,11 @@ var ImageController = function (_Controller) {
       navigator.getUserMedia({ video: true }, videoStarted.bind(this), videoError.bind(this));
     }
     function videoStarted(localMediaStream) {
+      this.killStream();
       var url = URL.createObjectURL(localMediaStream);
+      this.videoStreams.push(localMediaStream);
       this.setValue({
-        type: 'video',
+        type: 'video-stream',
         value: URL.createObjectURL(localMediaStream),
         domElement: this.__video
       });
@@ -2392,11 +2395,27 @@ var ImageController = function (_Controller) {
     }
     function videoError(error) {
       console.log(error);
+      this.killStream();
     }
     _this.domElement.appendChild(_this.__controlContainer);
     return _this;
   }
   createClass(ImageController, [{
+    key: 'killStream',
+    value: function killStream() {
+      this.videoStreams.forEach(function (stream) {
+        return stream.getTracks().forEach(function (track) {
+          return track.stop();
+        });
+      });
+      this.videoStreams = [];
+    }
+  }, {
+    key: 'destruct',
+    value: function destruct() {
+      this.killStream();
+    }
+  }, {
     key: 'initializeValue',
     value: function initializeValue() {
       var asset = this.getValue();
@@ -2416,7 +2435,7 @@ var ImageController = function (_Controller) {
           type: asset.type,
           domElement: this.__img
         });
-      } else if (asset.type === 'video') {
+      } else if (asset.type === 'video' || asset.type === 'video-stream') {
         this.setValue({
           url: asset.url,
           type: asset.type,
@@ -2432,7 +2451,7 @@ var ImageController = function (_Controller) {
         this.setImage(asset.url, false);
       } else if (asset.type === 'gif') {
         this.setImage(asset.url, true);
-      } else if (asset.type === 'video') {
+      } else if (asset.type === 'video' || asset.type === 'video-stream') {
         this.setVideo(asset.url);
       }
     }
@@ -2462,7 +2481,7 @@ var ImageController = function (_Controller) {
           });
           this.setImage(_url, false);
         }
-      } else if (type === 'video') {
+      } else if (type === 'video' || asset.type === 'video-stream') {
         this.setValue({
           url: url,
           type: 'video',
@@ -2515,6 +2534,10 @@ var ImageController = function (_Controller) {
   }, {
     key: 'setVideo',
     value: function setVideo(url) {
+      var asset = this.getValue();
+      if (asset.type !== 'video-stream') {
+        this.killStream();
+      }
       this.__isVideo = true;
       this.__isAnimated = true;
       this.__video.src = url;
@@ -3050,6 +3073,9 @@ Common.extend(GUI.prototype,
     });
   },
   remove: function remove(controller) {
+    if (controller.destruct) {
+      controller.destruct();
+    }
     this.__ul.removeChild(controller.__li);
     this.__controllers.splice(this.__controllers.indexOf(controller), 1);
     var _this = this;

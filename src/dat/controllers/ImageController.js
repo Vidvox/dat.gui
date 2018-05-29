@@ -2,7 +2,6 @@ import SuperGif from 'wsgif';
 import Controller from './Controller';
 import dom from '../dom/dom';
 import '../utils/getUserMedia';
-
 class ImageController extends Controller {
   constructor(object, property, opts) {
     super(object, property);
@@ -11,6 +10,7 @@ class ImageController extends Controller {
 
     this.__controlContainer = document.createElement('div');
     dom.addClass(this.__controlContainer, 'image-picker');
+    this.videoStreams = [];
     
     this.__selectedInputContainer = this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(this.__selectedInputContainer, 'selected-image');
@@ -106,10 +106,13 @@ class ImageController extends Controller {
       navigator.getUserMedia({ video: true }, videoStarted.bind(this), videoError.bind(this));
     }
 
+
     function videoStarted(localMediaStream) {
+      this.killStream();
       const url = URL.createObjectURL(localMediaStream);
+      this.videoStreams.push(localMediaStream);
       this.setValue({
-        type: 'video',
+        type: 'video-stream',
         value: URL.createObjectURL(localMediaStream),
         domElement: this.__video
       });
@@ -118,10 +121,22 @@ class ImageController extends Controller {
 
     function videoError(error) {
       console.log(error); // eslint-disable-line
+      this.killStream();
     }
 
     // at the end
     this.domElement.appendChild(this.__controlContainer);
+  }
+
+  killStream() {
+    this.videoStreams.forEach(stream =>
+      stream.getTracks().forEach(track =>
+        track.stop()));
+    this.videoStreams = [];
+  }
+
+  destruct() {
+    this.killStream();
   }
 
   initializeValue() {
@@ -143,7 +158,7 @@ class ImageController extends Controller {
         type: asset.type,
         domElement: this.__img
       });
-    } else if (asset.type === 'video') {
+    } else if (asset.type === 'video' || asset.type === 'video-stream') {
       this.setValue({
         url: asset.url,
         type: asset.type,
@@ -158,7 +173,7 @@ class ImageController extends Controller {
       this.setImage(asset.url, false);
     } else if (asset.type === 'gif') {
       this.setImage(asset.url, true);
-    } else if (asset.type === 'video') {
+    } else if (asset.type === 'video' || asset.type === 'video-stream') {
       this.setVideo(asset.url);
     }
   }
@@ -188,7 +203,7 @@ class ImageController extends Controller {
         });
         this.setImage(url, false);
       }
-    } else if (type === 'video') {
+    } else if (type === 'video' || asset.type === 'video-stream') {
       this.setValue({
         url: url,
         type: 'video',
@@ -242,6 +257,10 @@ class ImageController extends Controller {
   }
 
   setVideo(url) {
+    const asset = this.getValue();
+    if (asset.type !== 'video-stream') {
+      this.killStream();
+    }
     this.__isVideo = true;
     this.__isAnimated = true;
     this.__video.src = url;

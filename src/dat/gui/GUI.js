@@ -581,6 +581,10 @@ common.extend(
      */
     remove: function(controller) {
       // TODO listening?
+      // Hacky remove check, should be in events
+      if (controller.destruct) {
+        controller.destruct()
+      }
       this.__ul.removeChild(controller.__li);
       this.__controllers.splice(this.__controllers.indexOf(controller), 1);
       const _this = this;
