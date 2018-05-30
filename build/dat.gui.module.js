@@ -2509,7 +2509,9 @@ var ImageController = function (_Controller) {
         }
         this.__glGif.load(function (err) {
           if (!err) {
-            _this2.__glGif.play();
+            _this2.__glGif.play().catch(function (e) {
+              return console.log(e);
+            });
             if (_this2.__gifNeedsInitializing) {
               _this2.__gifNeedsInitializing = false;
               _this2.__skipSetImage = true;
@@ -2541,7 +2543,9 @@ var ImageController = function (_Controller) {
       this.__isVideo = true;
       this.__isAnimated = true;
       this.__video.src = url;
-      this.__video.play();
+      this.__video.play().catch(function (e) {
+        return console.log(e);
+      });
       this.__video.loop = true;
       this.__video.volume = 0;
       this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';

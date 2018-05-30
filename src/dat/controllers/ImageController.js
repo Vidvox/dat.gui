@@ -229,7 +229,7 @@ class ImageController extends Controller {
       }
       this.__glGif.load((err) => {
         if (!err) {
-          this.__glGif.play();
+          this.__glGif.play().catch(e => console.log(e));
           if (this.__gifNeedsInitializing) {
             // only want to call this if the canvas hasn't been initialized yet
             // but don't want to call setImage again
@@ -264,7 +264,7 @@ class ImageController extends Controller {
     this.__isVideo = true;
     this.__isAnimated = true;
     this.__video.src = url;
-    this.__video.play();
+    this.__video.play().catch(e => console.log(e));
     this.__video.loop = true;
     this.__video.volume = 0;
     this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
