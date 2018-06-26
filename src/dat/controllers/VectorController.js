@@ -21,21 +21,13 @@ class VectorController extends Controller {
     dom.makeSelectable(this.domElement, false);
 
     this.__selector = document.createElement('div');
-    this.__selector.className = 'selector';
+    this.__selector.className = 'vector-selector';
 
     this.__pos_field = document.createElement('div');
     this.__pos_field.className = 'saturation-field';
 
     this.__field_knob = document.createElement('div');
     this.__field_knob.className = 'field-knob';
-
-    this.__input = document.createElement('input');
-    this.__input.type = 'text';
-
-    dom.bind(this.__input, 'keydown', function(e) {
-      if (e.keyCode === 13) { // on enter
-      }
-    });
 
     dom.bind(this.__selector, 'mousedown', function(/* e */) {
       dom
@@ -53,11 +45,9 @@ class VectorController extends Controller {
         });
     });
 
-    const valueField = document.createElement('div');
-
     common.extend(this.__selector.style, {
-      width: '102px',
-      height: '102px',
+      width: '52px',
+      height: '52px',
       padding: '3px',
       backgroundColor: '#222',
       boxShadow: '0px 1px 3px rgba(0,0,0,0.3)'
@@ -67,32 +57,16 @@ class VectorController extends Controller {
       position: 'absolute',
       width: '12px',
       height: '12px',
-      border: '2px solid #fff',
       borderRadius: '12px',
       zIndex: 1
     });
 
     common.extend(this.__pos_field.style, {
-      width: '100px',
-      height: '100px',
-      border: '1px solid #555',
+      width: '50px',
+      height: '50px',
       marginRight: '3px',
       display: 'inline-block',
       cursor: 'pointer'
-    });
-
-    common.extend(valueField.style, {
-      width: '100%',
-      height: '100%',
-      background: 'none'
-    });
-
-    common.extend(this.__input.style, {
-      outline: 'none',
-      textAlign: 'center',
-      border: 0,
-      fontWeight: 'bold',
-      textShadow: this.__input_textShadow + 'rgba(0,0,0,0.7)'
     });
 
     dom.bind(this.__pos_field, 'mousedown', fieldDown);
@@ -123,10 +97,8 @@ class VectorController extends Controller {
       }
     }
 
-    this.__pos_field.appendChild(valueField);
     this.__selector.appendChild(this.__field_knob);
     this.__selector.appendChild(this.__pos_field);
-    this.domElement.appendChild(this.__input);
     this.domElement.appendChild(this.__selector);
 
     this.updateDisplay();
@@ -164,15 +136,13 @@ class VectorController extends Controller {
   updateDisplay() {
     this.__vec = this.getValue();
     common.extend(this.__field_knob.style, {
-      marginLeft: 100 * this.__vec[0] - 7 + 'px',
-      marginTop: 100 * (1 - this.__vec[1]) - 7 + 'px',
+      marginLeft: 50 * this.__vec[0] - 7 + 'px',
+      marginTop: 50 * (1 - this.__vec[1]) - 7 + 'px',
     });
 
     this.__temp[0] = 1;
     this.__temp[1] = 1;
 
-
-    this.__input.value = '[' + this.__vec[0].toFixed(3) + ',' + this.__vec[1].toFixed(3) + ']';
   }
 }
 

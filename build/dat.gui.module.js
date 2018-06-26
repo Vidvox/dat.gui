@@ -2634,17 +2634,11 @@ var VectorController = function (_Controller) {
     _this2.domElement = document.createElement('div');
     dom.makeSelectable(_this2.domElement, false);
     _this2.__selector = document.createElement('div');
-    _this2.__selector.className = 'selector';
+    _this2.__selector.className = 'vector-selector';
     _this2.__pos_field = document.createElement('div');
     _this2.__pos_field.className = 'saturation-field';
     _this2.__field_knob = document.createElement('div');
     _this2.__field_knob.className = 'field-knob';
-    _this2.__input = document.createElement('input');
-    _this2.__input.type = 'text';
-    dom.bind(_this2.__input, 'keydown', function (e) {
-      if (e.keyCode === 13) {
-      }
-    });
     dom.bind(_this2.__selector, 'mousedown', function ()        {
       dom.addClass(this, 'drag').bind(window, 'mouseup', function ()        {
         dom.removeClass(_this.__selector, 'drag');
@@ -2655,10 +2649,9 @@ var VectorController = function (_Controller) {
         dom.removeClass(_this.__selector, 'drag');
       });
     });
-    var valueField = document.createElement('div');
     Common.extend(_this2.__selector.style, {
-      width: '102px',
-      height: '102px',
+      width: '52px',
+      height: '52px',
       padding: '3px',
       backgroundColor: '#222',
       boxShadow: '0px 1px 3px rgba(0,0,0,0.3)'
@@ -2667,29 +2660,15 @@ var VectorController = function (_Controller) {
       position: 'absolute',
       width: '12px',
       height: '12px',
-      border: '2px solid #fff',
       borderRadius: '12px',
       zIndex: 1
     });
     Common.extend(_this2.__pos_field.style, {
-      width: '100px',
-      height: '100px',
-      border: '1px solid #555',
+      width: '50px',
+      height: '50px',
       marginRight: '3px',
       display: 'inline-block',
       cursor: 'pointer'
-    });
-    Common.extend(valueField.style, {
-      width: '100%',
-      height: '100%',
-      background: 'none'
-    });
-    Common.extend(_this2.__input.style, {
-      outline: 'none',
-      textAlign: 'center',
-      border: 0,
-      fontWeight: 'bold',
-      textShadow: _this2.__input_textShadow + 'rgba(0,0,0,0.7)'
     });
     dom.bind(_this2.__pos_field, 'mousedown', fieldDown);
     dom.bind(_this2.__pos_field, 'touchstart', fieldDown);
@@ -2714,10 +2693,8 @@ var VectorController = function (_Controller) {
         _this.__onFinishChange.call(_this, _this.__vec);
       }
     }
-    _this2.__pos_field.appendChild(valueField);
     _this2.__selector.appendChild(_this2.__field_knob);
     _this2.__selector.appendChild(_this2.__pos_field);
-    _this2.domElement.appendChild(_this2.__input);
     _this2.domElement.appendChild(_this2.__selector);
     _this2.updateDisplay();
     function setSV(e) {
@@ -2752,12 +2729,11 @@ var VectorController = function (_Controller) {
     value: function updateDisplay() {
       this.__vec = this.getValue();
       Common.extend(this.__field_knob.style, {
-        marginLeft: 100 * this.__vec[0] - 7 + 'px',
-        marginTop: 100 * (1 - this.__vec[1]) - 7 + 'px'
+        marginLeft: 50 * this.__vec[0] - 7 + 'px',
+        marginTop: 50 * (1 - this.__vec[1]) - 7 + 'px'
       });
       this.__temp[0] = 1;
       this.__temp[1] = 1;
-      this.__input.value = '[' + this.__vec[0].toFixed(3) + ',' + this.__vec[1].toFixed(3) + ']';
     }
   }]);
   return VectorController;
