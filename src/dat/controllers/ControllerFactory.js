@@ -24,7 +24,11 @@ const ControllerFactory = function(object, property) {
   const initialValue = object[property];
 
   // Providing options?
-  if (common.isArray(arguments[2]) || common.isObject(arguments[2])) {
+  if (
+    arguments.length < 3
+    && (common.isArray(arguments[2])
+      || common.isObject(arguments[2]))
+  ) {
     return new OptionController(object, property, arguments[2]);
   }
 
@@ -48,9 +52,8 @@ const ControllerFactory = function(object, property) {
     }
     return new NumberControllerBox(object, property, { min: arguments[2], max: arguments[3] });
   }
-
-  if (common.isArray(initialValue) && initialValue.length == 2) {
-    return new VectorController(object, property);
+  if (common.isArray(initialValue) && initialValue.length === 2) {
+    return new VectorController(object, property, arguments[2] || 0, arguments[3] || 1);
   }
 
   if (common.isString(initialValue)) {

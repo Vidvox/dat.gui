@@ -8,11 +8,11 @@ import common from '../utils/common';
  * @param {string} property
  */
 class VectorController extends Controller {
-  constructor(object, property) {
-    super(object, property);
+  constructor(object, property, min=0, max=1) {
+    super(object, property, { min: min, max: max });
 
     this.__vec = (this.getValue());
-    this.__temp = [0,0];
+    this.__temp = [0, 0];
 
     const _this = this;
 
@@ -28,7 +28,6 @@ class VectorController extends Controller {
 
     this.__field_knob = document.createElement('div');
     this.__field_knob.className = 'field-knob';
-    this.__field_knob_border = '2px solid ';
 
     this.__input = document.createElement('input');
     this.__input.type = 'text';
@@ -68,8 +67,7 @@ class VectorController extends Controller {
       position: 'absolute',
       width: '12px',
       height: '12px',
-      border: this.__field_knob_border + (this.__vec.v < 0.5 ? '#fff' : '#000'),
-      boxShadow: '0px 1px 3px rgba(0,0,0,0.5)',
+      border: '2px solid #fff',
       borderRadius: '12px',
       zIndex: 1
     });
@@ -91,10 +89,7 @@ class VectorController extends Controller {
 
     common.extend(this.__input.style, {
       outline: 'none',
-//      width: '120px',
       textAlign: 'center',
-//      padding: '4px',
-//      marginBottom: '6px',
       border: 0,
       fontWeight: 'bold',
       textShadow: this.__input_textShadow + 'rgba(0,0,0,0.7)'
@@ -105,7 +100,6 @@ class VectorController extends Controller {
 
     dom.bind(this.__field_knob, 'mousedown', fieldDown);
     dom.bind(this.__field_knob, 'touchstart', fieldDown);
-
 
     function fieldDown(e) {
       setSV(e);
@@ -132,7 +126,6 @@ class VectorController extends Controller {
     this.__pos_field.appendChild(valueField);
     this.__selector.appendChild(this.__field_knob);
     this.__selector.appendChild(this.__pos_field);
-
     this.domElement.appendChild(this.__input);
     this.domElement.appendChild(this.__selector);
 
@@ -158,8 +151,8 @@ class VectorController extends Controller {
         y = 0;
       }
 
-      _this.__vec[0] = x;
-      _this.__vec[1] = y;
+      _this.__vec[0] = x * (max[0] - min[0]) + min[0];
+      _this.__vec[1] = y * (max[1] - min[1]) + min[1];
 
       _this.setValue(_this.__vec);
 
@@ -169,7 +162,7 @@ class VectorController extends Controller {
   }
 
   updateDisplay() {
-    this.__vec = this.getValue()
+    this.__vec = this.getValue();
     common.extend(this.__field_knob.style, {
       marginLeft: 100 * this.__vec[0] - 7 + 'px',
       marginTop: 100 * (1 - this.__vec[1]) - 7 + 'px',

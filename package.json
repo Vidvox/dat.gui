@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "concurrently --names \"ROLLUP,HTTP\" -c \"bgBlue.bold,bgGreen.bold\" \"rollup -c -w -m inline\" \"serve --port 8080\"",
     "build": "rollup -c && rollup -c rollup.config.min.js",
+    "watch": "rollup --watch -c && rollup --watch -c rollup.config.min.js",
     "build-docs": "jsdoc2md -f src/dat/gui/GUI.js src/dat/controllers/Controller.js src/dat/controllers/NumberController.js | replace-between --target API.md --token API",
     "lint": "eslint src",
     "preversion": "npm run lint",

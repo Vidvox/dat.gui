@@ -2624,8 +2624,10 @@ var saveDialogContents = "<div id=\"dg-save\" class=\"dg dialogue\">\n\n  Here's
 var VectorController = function (_Controller) {
   inherits(VectorController, _Controller);
   function VectorController(object, property) {
+    var min = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+    var max = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
     classCallCheck(this, VectorController);
-    var _this2 = possibleConstructorReturn(this, (VectorController.__proto__ || Object.getPrototypeOf(VectorController)).call(this, object, property));
+    var _this2 = possibleConstructorReturn(this, (VectorController.__proto__ || Object.getPrototypeOf(VectorController)).call(this, object, property, { min: min, max: max }));
     _this2.__vec = _this2.getValue();
     _this2.__temp = [0, 0];
     var _this = _this2;
@@ -2637,7 +2639,6 @@ var VectorController = function (_Controller) {
     _this2.__pos_field.className = 'saturation-field';
     _this2.__field_knob = document.createElement('div');
     _this2.__field_knob.className = 'field-knob';
-    _this2.__field_knob_border = '2px solid ';
     _this2.__input = document.createElement('input');
     _this2.__input.type = 'text';
     dom.bind(_this2.__input, 'keydown', function (e) {
@@ -2666,8 +2667,7 @@ var VectorController = function (_Controller) {
       position: 'absolute',
       width: '12px',
       height: '12px',
-      border: _this2.__field_knob_border + (_this2.__vec.v < 0.5 ? '#fff' : '#000'),
-      boxShadow: '0px 1px 3px rgba(0,0,0,0.5)',
+      border: '2px solid #fff',
       borderRadius: '12px',
       zIndex: 1
     });
@@ -2740,8 +2740,8 @@ var VectorController = function (_Controller) {
       } else if (y < 0) {
         y = 0;
       }
-      _this.__vec[0] = x;
-      _this.__vec[1] = y;
+      _this.__vec[0] = x * (max[0] - min[0]) + min[0];
+      _this.__vec[1] = y * (max[1] - min[1]) + min[1];
       _this.setValue(_this.__vec);
       return false;
     }
@@ -2765,7 +2765,7 @@ var VectorController = function (_Controller) {
 
 var ControllerFactory = function ControllerFactory(object, property) {
   var initialValue = object[property];
-  if (Common.isArray(arguments[2]) || Common.isObject(arguments[2])) {
+  if (arguments.length < 3 && (Common.isArray(arguments[2]) || Common.isObject(arguments[2]))) {
     return new OptionController(object, property, arguments[2]);
   }
   if (Common.isNumber(initialValue)) {
@@ -2780,8 +2780,8 @@ var ControllerFactory = function ControllerFactory(object, property) {
     }
     return new NumberControllerBox(object, property, { min: arguments[2], max: arguments[3] });
   }
-  if (Common.isArray(initialValue) && initialValue.length == 2) {
-    return new VectorController(object, property);
+  if (Common.isArray(initialValue) && initialValue.length === 2) {
+    return new VectorController(object, property, arguments[2] || 0, arguments[3] || 1);
   }
   if (Common.isString(initialValue)) {
     return new StringController(object, property);
