@@ -16,6 +16,7 @@ import saveDialogueContents from './saveDialogue.html';
 import ControllerFactory from '../controllers/ControllerFactory';
 import Controller from '../controllers/Controller';
 import BooleanController from '../controllers/BooleanController';
+import VectorController from '../controllers/VectorController';
 import FunctionController from '../controllers/FunctionController';
 import NumberControllerBox from '../controllers/NumberControllerBox';
 import NumberControllerSlider from '../controllers/NumberControllerSlider';
@@ -1066,7 +1067,10 @@ function augmentController(gui, li, controller) {
     }, controller.updateDisplay);
 
     controller.updateDisplay();
+  } else if (controller instanceof VectorController) {
+    dom.addClass(li, 'vector');
   }
+
 
   controller.setValue = common.compose(function(val) {
     if (gui.getRoot().__preset_select && controller.isModified()) {

@@ -7,6 +7,7 @@
   <script type="text/javascript" src="build/dat.gui.js"></script>
   <script type="text/javascript">
     var obj = {
+        vector: [0, 0],
         message: 'Hello World',
         displayOutline: false,
 
@@ -27,12 +28,13 @@
         color1: [ 0, 128, 255 ], // RGB array
         color2: [ 0, 128, 255, 0.3 ], // RGB with alpha
         color3: { h: 350, s: 0.9, v: 0.3 } // Hue, saturation, value
+      
     };
 
     var gui = new dat.gui.GUI();
 
     gui.remember(obj);
-
+    gui.add(obj, 'vector');
     gui.add(obj, 'message');
     gui.add(obj, 'displayOutline');
     gui.add(obj, 'explode');

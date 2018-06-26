@@ -226,7 +226,7 @@ $button-height: 20px;
   }
 
   /** allow overflow for color selector */
-  .cr.color {
+  .cr.color, .cr.vector {
     overflow: visible;
   }
 

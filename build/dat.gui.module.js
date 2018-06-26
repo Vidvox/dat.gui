@@ -2621,6 +2621,148 @@ var css = {
 
 var saveDialogContents = "<div id=\"dg-save\" class=\"dg dialogue\">\n\n  Here's the new load parameter for your <code>GUI</code>'s constructor:\n\n  <textarea id=\"dg-new-constructor\"></textarea>\n\n  <div id=\"dg-save-locally\">\n\n    <input id=\"dg-local-storage\" type=\"checkbox\"/> Automatically save\n    values to <code>localStorage</code> on exit.\n\n    <div id=\"dg-local-explain\">The values saved to <code>localStorage</code> will\n      override those passed to <code>dat.GUI</code>'s constructor. This makes it\n      easier to work incrementally, but <code>localStorage</code> is fragile,\n      and your friends may not see the same values you do.\n\n    </div>\n\n  </div>\n\n</div>";
 
+var VectorController = function (_Controller) {
+  inherits(VectorController, _Controller);
+  function VectorController(object, property) {
+    classCallCheck(this, VectorController);
+    var _this2 = possibleConstructorReturn(this, (VectorController.__proto__ || Object.getPrototypeOf(VectorController)).call(this, object, property));
+    _this2.__vec = _this2.getValue();
+    _this2.__temp = [0, 0];
+    var _this = _this2;
+    _this2.domElement = document.createElement('div');
+    dom.makeSelectable(_this2.domElement, false);
+    _this2.__selector = document.createElement('div');
+    _this2.__selector.className = 'selector';
+    _this2.__pos_field = document.createElement('div');
+    _this2.__pos_field.className = 'saturation-field';
+    _this2.__field_knob = document.createElement('div');
+    _this2.__field_knob.className = 'field-knob';
+    _this2.__field_knob_border = '2px solid ';
+    _this2.__input = document.createElement('input');
+    _this2.__input.type = 'text';
+    dom.bind(_this2.__input, 'keydown', function (e) {
+      if (e.keyCode === 13) {
+      }
+    });
+    dom.bind(_this2.__selector, 'mousedown', function ()        {
+      dom.addClass(this, 'drag').bind(window, 'mouseup', function ()        {
+        dom.removeClass(_this.__selector, 'drag');
+      });
+    });
+    dom.bind(_this2.__selector, 'touchstart', function ()        {
+      dom.addClass(this, 'drag').bind(window, 'touchend', function ()        {
+        dom.removeClass(_this.__selector, 'drag');
+      });
+    });
+    var valueField = document.createElement('div');
+    Common.extend(_this2.__selector.style, {
+      width: '102px',
+      height: '102px',
+      padding: '3px',
+      backgroundColor: '#222',
+      boxShadow: '0px 1px 3px rgba(0,0,0,0.3)'
+    });
+    Common.extend(_this2.__field_knob.style, {
+      position: 'absolute',
+      width: '12px',
+      height: '12px',
+      border: _this2.__field_knob_border + (_this2.__vec.v < 0.5 ? '#fff' : '#000'),
+      boxShadow: '0px 1px 3px rgba(0,0,0,0.5)',
+      borderRadius: '12px',
+      zIndex: 1
+    });
+    Common.extend(_this2.__pos_field.style, {
+      width: '100px',
+      height: '100px',
+      border: '1px solid #555',
+      marginRight: '3px',
+      display: 'inline-block',
+      cursor: 'pointer'
+    });
+    Common.extend(valueField.style, {
+      width: '100%',
+      height: '100%',
+      background: 'none'
+    });
+    Common.extend(_this2.__input.style, {
+      outline: 'none',
+      textAlign: 'center',
+      border: 0,
+      fontWeight: 'bold',
+      textShadow: _this2.__input_textShadow + 'rgba(0,0,0,0.7)'
+    });
+    dom.bind(_this2.__pos_field, 'mousedown', fieldDown);
+    dom.bind(_this2.__pos_field, 'touchstart', fieldDown);
+    dom.bind(_this2.__field_knob, 'mousedown', fieldDown);
+    dom.bind(_this2.__field_knob, 'touchstart', fieldDown);
+    function fieldDown(e) {
+      setSV(e);
+      dom.bind(window, 'mousemove', setSV);
+      dom.bind(window, 'touchmove', setSV);
+      dom.bind(window, 'mouseup', fieldUpSV);
+      dom.bind(window, 'touchend', fieldUpSV);
+    }
+    function fieldUpSV() {
+      dom.unbind(window, 'mousemove', setSV);
+      dom.unbind(window, 'touchmove', setSV);
+      dom.unbind(window, 'mouseup', fieldUpSV);
+      dom.unbind(window, 'touchend', fieldUpSV);
+      onFinish();
+    }
+    function onFinish() {
+      if (_this.__onFinishChange) {
+        _this.__onFinishChange.call(_this, _this.__vec);
+      }
+    }
+    _this2.__pos_field.appendChild(valueField);
+    _this2.__selector.appendChild(_this2.__field_knob);
+    _this2.__selector.appendChild(_this2.__pos_field);
+    _this2.domElement.appendChild(_this2.__input);
+    _this2.domElement.appendChild(_this2.__selector);
+    _this2.updateDisplay();
+    function setSV(e) {
+      if (e.type.indexOf('touch') === -1) {
+        e.preventDefault();
+      }
+      var fieldRect = _this.__pos_field.getBoundingClientRect();
+      var _ref = e.touches && e.touches[0] || e,
+          clientX = _ref.clientX,
+          clientY = _ref.clientY;
+      var x = (clientX - fieldRect.left) / (fieldRect.right - fieldRect.left);
+      var y = 1 - (clientY - fieldRect.top) / (fieldRect.bottom - fieldRect.top);
+      if (x > 1) {
+        x = 1;
+      } else if (x < 0) {
+        x = 0;
+      }
+      if (y > 1) {
+        y = 1;
+      } else if (y < 0) {
+        y = 0;
+      }
+      _this.__vec[0] = x;
+      _this.__vec[1] = y;
+      _this.setValue(_this.__vec);
+      return false;
+    }
+    return _this2;
+  }
+  createClass(VectorController, [{
+    key: 'updateDisplay',
+    value: function updateDisplay() {
+      this.__vec = this.getValue();
+      Common.extend(this.__field_knob.style, {
+        marginLeft: 100 * this.__vec[0] - 7 + 'px',
+        marginTop: 100 * (1 - this.__vec[1]) - 7 + 'px'
+      });
+      this.__temp[0] = 1;
+      this.__temp[1] = 1;
+      this.__input.value = '[' + this.__vec[0].toFixed(3) + ',' + this.__vec[1].toFixed(3) + ']';
+    }
+  }]);
+  return VectorController;
+}(Controller);
+
 var ControllerFactory = function ControllerFactory(object, property) {
   var initialValue = object[property];
   if (Common.isArray(arguments[2]) || Common.isObject(arguments[2])) {
@@ -2637,6 +2779,9 @@ var ControllerFactory = function ControllerFactory(object, property) {
       return new NumberControllerBox(object, property, { min: arguments[2], max: arguments[3], step: arguments[4] });
     }
     return new NumberControllerBox(object, property, { min: arguments[2], max: arguments[3] });
+  }
+  if (Common.isArray(initialValue) && initialValue.length == 2) {
+    return new VectorController(object, property);
   }
   if (Common.isString(initialValue)) {
     return new StringController(object, property);
@@ -3383,6 +3528,8 @@ function augmentController(gui, li, controller) {
       return val;
     }, controller.updateDisplay);
     controller.updateDisplay();
+  } else if (controller instanceof VectorController) {
+    dom.addClass(li, 'vector');
   }
   controller.setValue = Common.compose(function (val) {
     if (gui.getRoot().__preset_select && controller.isModified()) {
