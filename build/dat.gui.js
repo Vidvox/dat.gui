@@ -2630,8 +2630,8 @@ var saveDialogContents = "<div id=\"dg-save\" class=\"dg dialogue\">\n\n  Here's
 var VectorController = function (_Controller) {
   inherits(VectorController, _Controller);
   function VectorController(object, property) {
-    var min = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-    var max = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+    var min = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 0];
+    var max = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [1, 1];
     classCallCheck(this, VectorController);
     var _this2 = possibleConstructorReturn(this, (VectorController.__proto__ || Object.getPrototypeOf(VectorController)).call(this, object, property, { min: min, max: max }));
     _this2.__vec = _this2.getValue();
@@ -2763,7 +2763,10 @@ var ControllerFactory = function ControllerFactory(object, property) {
     return new NumberControllerBox(object, property, { min: arguments[2], max: arguments[3] });
   }
   if (Common.isArray(initialValue) && initialValue.length === 2) {
-    return new VectorController(object, property, arguments[2] || 0, arguments[3] || 1);
+    if (arguments.length > 3) {
+      return new VectorController(object, property, arguments[2], arguments[3]);
+    }
+    return new VectorController(object, property);
   }
   if (Common.isString(initialValue)) {
     return new StringController(object, property);

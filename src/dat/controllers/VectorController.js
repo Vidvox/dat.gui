@@ -8,7 +8,7 @@ import common from '../utils/common';
  * @param {string} property
  */
 class VectorController extends Controller {
-  constructor(object, property, min=0, max=1) {
+  constructor(object, property, min = [0, 0], max = [1, 1]) {
     super(object, property, { min: min, max: max });
 
     this.__vec = (this.getValue());
