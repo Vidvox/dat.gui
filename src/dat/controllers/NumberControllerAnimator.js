@@ -10,22 +10,30 @@ class NumberControllerAnimator extends NumberController {
     dom.addClass(this.domElement, 'button-container');
 
     this.__animationMode = null;
+    _this.__animationStart = Date.now();
 
     this.__sineButton = document.createElement('button');
     dom.addClass(this.__sineButton, 'sine-button');
     this.__sawButton = document.createElement('button');
     dom.addClass(this.__sawButton, 'saw-button');
-
+    
     dom.bind(this.__sawButton, 'click', toggleSaw);
     dom.bind(this.__sineButton, 'click', toggleSine);
+
 
     function toggleSaw(e) {
       e.stopPropagation();
       e.preventDefault();
       if (_this.__animationMode === 'saw') {
         stopAnimating();
+        dom.removeClass(_this.__sawButton, 'saw-button--activated');
       } else {
+        if (_this.animationMode === 'sine') {
+          dom.removeClass(_this.__sineButton, 'sine-button--activated');
+        }
         _this.__animationMode = 'saw';
+        _this.__animationStart = Date.now();
+        dom.addClass(_this.__sawButton, 'saw-button--activated');
         animate();
       }
     }
@@ -35,8 +43,14 @@ class NumberControllerAnimator extends NumberController {
       e.preventDefault();
       if (_this.__animationMode === 'sine') {
         stopAnimating();
+        dom.removeClass(_this.__sineButton, 'sine-button--activated');
       } else {
+        if (_this.animationMode === 'saw') {
+          dom.removeClass(_this.__sawButton, 'saw-button--activated');
+        }
         _this.__animationMode = 'sine';
+        _this.__animationStart = Date.now();
+        dom.addClass(_this.__sineButton, 'sine-button--activated');
         animate();
       }
     }
@@ -46,9 +60,9 @@ class NumberControllerAnimator extends NumberController {
       let percent;
 
       if (_this.__animationMode === 'sine') {
-        percent = Math.sin(Date.now() / 1000) / 2 + 0.5;
+        percent = Math.sin((Date.now() - _this.__animationStart) / 1000) / 2 + 0.5;
       } else if (_this.__animationMode === 'saw') {
-        percent = (Date.now() / 2000) % 1;
+        percent = ((Date.now() - _this.__animationStart) / 2000) % 1;
       }
 
       if (_this.__min !== undefined && _this.__max !== undefined) {
