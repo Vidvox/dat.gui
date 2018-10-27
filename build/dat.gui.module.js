@@ -2796,7 +2796,7 @@ var NumberControllerAnimator = function (_NumberController) {
         stopAnimating();
         dom.removeClass(_this.__sawButton, 'saw-button--activated');
       } else {
-        if (_this.animationMode === 'sine') {
+        if (_this.__animationMode === 'sine') {
           dom.removeClass(_this.__sineButton, 'sine-button--activated');
         }
         _this.__animationMode = 'saw';
@@ -2812,7 +2812,7 @@ var NumberControllerAnimator = function (_NumberController) {
         stopAnimating();
         dom.removeClass(_this.__sineButton, 'sine-button--activated');
       } else {
-        if (_this.animationMode === 'saw') {
+        if (_this.__animationMode === 'saw') {
           dom.removeClass(_this.__sawButton, 'saw-button--activated');
         }
         _this.__animationMode = 'sine';
