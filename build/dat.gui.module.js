@@ -2621,6 +2621,12 @@ var css = {
 
 var saveDialogContents = "<div id=\"dg-save\" class=\"dg dialogue\">\n\n  Here's the new load parameter for your <code>GUI</code>'s constructor:\n\n  <textarea id=\"dg-new-constructor\"></textarea>\n\n  <div id=\"dg-save-locally\">\n\n    <input id=\"dg-local-storage\" type=\"checkbox\"/> Automatically save\n    values to <code>localStorage</code> on exit.\n\n    <div id=\"dg-local-explain\">The values saved to <code>localStorage</code> will\n      override those passed to <code>dat.GUI</code>'s constructor. This makes it\n      easier to work incrementally, but <code>localStorage</code> is fragile,\n      and your friends may not see the same values you do.\n\n    </div>\n\n  </div>\n\n</div>";
 
+function pos2vec(pos, min, max) {
+  return [pos[0] * (max[0] - min[0]) + min[0], pos[1] * (max[1] - min[1]) + min[1]];
+}
+function vec2pos(vec, min, max) {
+  return [(vec[0] - min[0]) / (max[0] - min[0]), (vec[1] - min[1]) / (max[1] - min[1])];
+}
 var VectorController = function (_Controller) {
   inherits(VectorController, _Controller);
   function VectorController(object, property) {
@@ -2628,6 +2634,8 @@ var VectorController = function (_Controller) {
     var max = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [1, 1];
     classCallCheck(this, VectorController);
     var _this2 = possibleConstructorReturn(this, (VectorController.__proto__ || Object.getPrototypeOf(VectorController)).call(this, object, property, { min: min, max: max }));
+    _this2.__min = min;
+    _this2.__max = max;
     _this2.__vec = _this2.getValue();
     _this2.__temp = [0, 0];
     var _this = _this2;
@@ -2717,8 +2725,7 @@ var VectorController = function (_Controller) {
       } else if (y < 0) {
         y = 0;
       }
-      _this.__vec[0] = x * (max[0] - min[0]) + min[0];
-      _this.__vec[1] = y * (max[1] - min[1]) + min[1];
+      _this.__vec = pos2vec([x, y], _this.__min, _this.__max);
       _this.setValue(_this.__vec);
       return false;
     }
@@ -2728,9 +2735,10 @@ var VectorController = function (_Controller) {
     key: 'updateDisplay',
     value: function updateDisplay() {
       this.__vec = this.getValue();
+      var offset = vec2pos(this.__vec, this.__min, this.__max);
       Common.extend(this.__field_knob.style, {
-        marginLeft: 50 * this.__vec[0] - 7 + 'px',
-        marginTop: 50 * (1 - this.__vec[1]) - 7 + 'px'
+        marginLeft: 50 * offset[0] - 7 + 'px',
+        marginTop: 50 * (1 - offset[1]) - 7 + 'px'
       });
       this.__temp[0] = 1;
       this.__temp[1] = 1;
@@ -2782,7 +2790,6 @@ var NumberControllerAnimator = function (_NumberController) {
     var _this = _this2;
     dom.addClass(_this2.domElement, 'button-container');
     _this2.__animationMode = null;
-    _this.__animationStart = Date.now();
     _this2.__sineButton = document.createElement('button');
     dom.addClass(_this2.__sineButton, 'sine-button');
     _this2.__sawButton = document.createElement('button');
@@ -2800,7 +2807,6 @@ var NumberControllerAnimator = function (_NumberController) {
           dom.removeClass(_this.__sineButton, 'sine-button--activated');
         }
         _this.__animationMode = 'saw';
-        _this.__animationStart = Date.now();
         dom.addClass(_this.__sawButton, 'saw-button--activated');
         animate();
       }
@@ -2816,7 +2822,6 @@ var NumberControllerAnimator = function (_NumberController) {
           dom.removeClass(_this.__sawButton, 'saw-button--activated');
         }
         _this.__animationMode = 'sine';
-        _this.__animationStart = Date.now();
         dom.addClass(_this.__sineButton, 'sine-button--activated');
         animate();
       }
@@ -2825,9 +2830,9 @@ var NumberControllerAnimator = function (_NumberController) {
       if (_this.__animationMode === null) return;
       var percent = void 0;
       if (_this.__animationMode === 'sine') {
-        percent = Math.sin((Date.now() - _this.__animationStart) / 1000) / 2 + 0.5;
+        percent = Math.sin(Date.now() / 1000) / 2 + 0.5;
       } else if (_this.__animationMode === 'saw') {
-        percent = (Date.now() - _this.__animationStart) / 2000 % 1;
+        percent = Date.now() / 2000 % 1;
       }
       if (_this.__min !== undefined && _this.__max !== undefined) {
         _this.setValue((_this.__max - _this.__min) * percent + _this.__min);

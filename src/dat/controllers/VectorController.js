@@ -2,15 +2,37 @@ import Controller from './Controller';
 import dom from '../dom/dom';
 import common from '../utils/common';
 
+/*
+ * Linearly maps a position in [0,1] to our vector range.
+ */
+function pos2vec(pos, min, max) {
+  return [
+    pos[0] * (max[0] - min[0]) + min[0],
+    pos[1] * (max[1] - min[1]) + min[1],
+  ];
+}
+
+/*
+ * Linearly maps a value in our vector range to
+ * a position in [0, 1]
+ */
+function vec2pos(vec, min, max) {
+  return [
+    (vec[0] - min[0]) / (max[0] - min[0]),
+    (vec[1] - min[1]) / (max[1] - min[1]),
+  ];
+}
+
 /**
- * @class Represents a given property of an object that is a vector.
+ * @class Represents a given property of an object that is a 2D vector.
  * @param {Object} object
  * @param {string} property
  */
 class VectorController extends Controller {
   constructor(object, property, min = [0, 0], max = [1, 1]) {
     super(object, property, { min: min, max: max });
-
+    this.__min = min;
+    this.__max = max;
     this.__vec = (this.getValue());
     this.__temp = [0, 0];
 
@@ -123,11 +145,8 @@ class VectorController extends Controller {
         y = 0;
       }
 
-      _this.__vec[0] = x * (max[0] - min[0]) + min[0];
-      _this.__vec[1] = y * (max[1] - min[1]) + min[1];
-
+      _this.__vec = pos2vec([x, y], _this.__min, _this.__max);
       _this.setValue(_this.__vec);
-
 
       return false;
     }
@@ -135,14 +154,14 @@ class VectorController extends Controller {
 
   updateDisplay() {
     this.__vec = this.getValue();
+    const offset = vec2pos(this.__vec, this.__min, this.__max);
     common.extend(this.__field_knob.style, {
-      marginLeft: 50 * this.__vec[0] - 7 + 'px',
-      marginTop: 50 * (1 - this.__vec[1]) - 7 + 'px',
+      marginLeft: 50 * offset[0] - 7 + 'px',
+      marginTop: 50 * (1 - offset[1]) - 7 + 'px',
     });
 
     this.__temp[0] = 1;
     this.__temp[1] = 1;
-
   }
 }
 
