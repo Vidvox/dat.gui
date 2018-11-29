@@ -5,8 +5,15 @@ import '../utils/getUserMedia';
 class ImageController extends Controller {
   constructor(object, property, opts) {
     super(object, property);
+    let defaultOptions;
+    let disableVideo = false;
 
-    const defaultOptions = opts;
+    if (opts.defaults) {
+      disableVideo = opts.disableVideo;
+      defaultOptions = opts.defaults;
+    } else {
+      defaultOptions = opts;
+    }
 
     this.__controlContainer = document.createElement('div');
     dom.addClass(this.__controlContainer, 'image-picker');
@@ -28,9 +35,11 @@ class ImageController extends Controller {
     dom.addClass(this.__swatchButtons, 'swatch-buttons');
 
     this.__swatchImages = this.__swatches.appendChild(document.createElement('div'));
+    this.__disableVideo = disableVideo; 
     dom.addClass(this.__swatchImages, 'swatch-images');
+    this.__useCamera = navigator.getUserMedia && !disableVideo;
 
-    if (navigator.getUserMedia) {
+    if (this.__useCamera) {
       this.__camera = this.__swatchButtons.appendChild(document.createElement('div'));
       this.__cameraTitle = this.__camera.appendChild(document.createElement('span'));
       this.__cameraTitle.innerHTML = "Video";
@@ -64,8 +73,9 @@ class ImageController extends Controller {
     // this.__glGif.load();
 
     this.initializeValue();
-
-    dom.bind(this.__camera, 'click', onCameraClick.bind(this));
+    if (this.__useCamera) {
+      dom.bind(this.__camera, 'click', onCameraClick.bind(this));
+    }
     dom.bind(this.__plus, 'click', chooseImage.bind(this));
     dom.bind(this.__input, 'change', inputChange.bind(this));
 
@@ -141,6 +151,7 @@ class ImageController extends Controller {
 
   initializeValue() {
     const asset = this.getValue();
+    if (!asset) { return; }
     // const isAnimated = asset.url.split('.').pop() === 'gif';
     if (asset.type === 'gif') {
       if (this.__gifNeedsInitializing) {
@@ -169,6 +180,7 @@ class ImageController extends Controller {
 
   updateDisplay() {
     const asset = this.getValue();
+    if (!asset) { return; }
     if (asset.type === 'image') {
       this.setImage(asset.url, false);
     } else if (asset.type === 'gif') {
@@ -185,7 +197,7 @@ class ImageController extends Controller {
     if (type === 'image') {
       const url = file.urlOverride || URL.createObjectURL(file);
       const isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
-      if (isAnimated) {
+      if (!this.__disableVideo && isAnimated) {
         if (this.__gifNeedsInitializing) {
           this.setImage(url, true);
         } else {
@@ -195,7 +207,7 @@ class ImageController extends Controller {
             domElement: this.__glGif.get_canvas()
           });
         }
-      } else {
+      } else if (!isAnimated) {
         this.setValue({
           url: url,
           type: 'image',
@@ -203,7 +215,7 @@ class ImageController extends Controller {
         });
         this.setImage(url, false);
       }
-    } else if (type === 'video' || asset.type === 'video-stream') {
+    } else if (!this.__disableVideo && type === 'video' || type === 'video-stream') {
       this.setValue({
         url: url,
         type: 'video',

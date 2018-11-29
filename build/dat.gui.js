@@ -2312,7 +2312,14 @@ var ImageController = function (_Controller) {
   function ImageController(object, property, opts) {
     classCallCheck(this, ImageController);
     var _this = possibleConstructorReturn(this, (ImageController.__proto__ || Object.getPrototypeOf(ImageController)).call(this, object, property));
-    var defaultOptions = opts;
+    var defaultOptions = void 0;
+    var disableVideo = false;
+    if (opts.defaults) {
+      disableVideo = opts.disableVideo;
+      defaultOptions = opts.defaults;
+    } else {
+      defaultOptions = opts;
+    }
     _this.__controlContainer = document.createElement('div');
     dom.addClass(_this.__controlContainer, 'image-picker');
     _this.videoStreams = [];
@@ -2327,8 +2334,10 @@ var ImageController = function (_Controller) {
     _this.__swatchButtons = _this.__swatches.appendChild(document.createElement('div'));
     dom.addClass(_this.__swatchButtons, 'swatch-buttons');
     _this.__swatchImages = _this.__swatches.appendChild(document.createElement('div'));
+    _this.__disableVideo = disableVideo;
     dom.addClass(_this.__swatchImages, 'swatch-images');
-    if (navigator.getUserMedia) {
+    _this.__useCamera = navigator.getUserMedia && !disableVideo;
+    if (_this.__useCamera) {
       _this.__camera = _this.__swatchButtons.appendChild(document.createElement('div'));
       _this.__cameraTitle = _this.__camera.appendChild(document.createElement('span'));
       _this.__cameraTitle.innerHTML = "Video";
@@ -2355,7 +2364,9 @@ var ImageController = function (_Controller) {
     _this.__glGif = new sibgif({ gif: _this.__gifImg });
     _this.__gifNeedsInitializing = true;
     _this.initializeValue();
-    dom.bind(_this.__camera, 'click', onCameraClick.bind(_this));
+    if (_this.__useCamera) {
+      dom.bind(_this.__camera, 'click', onCameraClick.bind(_this));
+    }
     dom.bind(_this.__plus, 'click', chooseImage.bind(_this));
     dom.bind(_this.__input, 'change', inputChange.bind(_this));
     dom.bind(_this.__img, 'dragover', onDragOver.bind(_this));
@@ -2425,6 +2436,9 @@ var ImageController = function (_Controller) {
     key: 'initializeValue',
     value: function initializeValue() {
       var asset = this.getValue();
+      if (!asset) {
+        return;
+      }
       if (asset.type === 'gif') {
         if (this.__gifNeedsInitializing) {
           this.setImage(asset.url, true);
@@ -2453,6 +2467,9 @@ var ImageController = function (_Controller) {
     key: 'updateDisplay',
     value: function updateDisplay() {
       var asset = this.getValue();
+      if (!asset) {
+        return;
+      }
       if (asset.type === 'image') {
         this.setImage(asset.url, false);
       } else if (asset.type === 'gif') {
@@ -2469,7 +2486,7 @@ var ImageController = function (_Controller) {
       if (type === 'image') {
         var _url = file.urlOverride || URL.createObjectURL(file);
         var isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
-        if (isAnimated) {
+        if (!this.__disableVideo && isAnimated) {
           if (this.__gifNeedsInitializing) {
             this.setImage(_url, true);
           } else {
@@ -2479,7 +2496,7 @@ var ImageController = function (_Controller) {
               domElement: this.__glGif.get_canvas()
             });
           }
-        } else {
+        } else if (!isAnimated) {
           this.setValue({
             url: _url,
             type: 'image',
@@ -2487,7 +2504,7 @@ var ImageController = function (_Controller) {
           });
           this.setImage(_url, false);
         }
-      } else if (type === 'video' || asset.type === 'video-stream') {
+      } else if (!this.__disableVideo && type === 'video' || type === 'video-stream') {
         this.setValue({
           url: url,
           type: 'video',
