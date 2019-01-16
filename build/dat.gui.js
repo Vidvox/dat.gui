@@ -2772,7 +2772,7 @@ var VectorController = function (_Controller) {
 
 var ControllerFactory = function ControllerFactory(object, property) {
   var initialValue = object[property];
-  if (arguments.length < 3 && (Common.isArray(arguments[2]) || Common.isObject(arguments[2]))) {
+  if (arguments.length <= 3 && (Common.isArray(arguments[2]) || Common.isObject(arguments[2]))) {
     return new OptionController(object, property, arguments[2]);
   }
   if (Common.isNumber(initialValue)) {

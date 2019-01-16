@@ -25,7 +25,7 @@ const ControllerFactory = function(object, property) {
 
   // Providing options?
   if (
-    arguments.length < 3
+    arguments.length <= 3
     && (common.isArray(arguments[2])
       || common.isObject(arguments[2]))
   ) {
