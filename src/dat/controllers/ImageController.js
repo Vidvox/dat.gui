@@ -271,6 +271,7 @@ class ImageController extends Controller {
   setVideo(streamOrUrl) {
     const asset = this.getValue();
     console.log(asset)
+    console.log(streamOrUrl);
     if (asset.type === 'video-stream') {
       this.__video.srcObject = streamOrUrl;
     } else {
@@ -280,7 +281,7 @@ class ImageController extends Controller {
     this.__isVideo = true;
     this.__isAnimated = true;
     this.__video.play().catch(e => console.log(e, e.message, e.name));
-    this.__video.loop = true;
+    // this.__video.loop = true;
     this.__video.volume = 0;
     this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
     this.__img.style.display = 'none';
