@@ -2467,7 +2467,7 @@ var ImageController = function (_Controller) {
         this.setImage(asset.url, false);
       } else if (asset.type === 'gif') {
         this.setImage(asset.url, true);
-      } else if (asset.type === 'video' || asset.type === 'video-stream') {
+      } else if (asset.type === 'video') {
         this.setVideo(asset.url);
       }
     }
