@@ -2395,14 +2395,13 @@ var ImageController = function (_Controller) {
     }
     function videoStarted(localMediaStream) {
       this.killStream();
-      var url = URL.createObjectURL(localMediaStream);
       this.videoStreams.push(localMediaStream);
       this.setValue({
         type: 'video-stream',
-        value: URL.createObjectURL(localMediaStream),
+        value: localMediaStream,
         domElement: this.__video
       });
-      this.setVideo(url);
+      this.setVideo(localMediaStream);
     }
     function videoError(error) {
       console.log(error);
@@ -2552,14 +2551,16 @@ var ImageController = function (_Controller) {
     }
   }, {
     key: 'setVideo',
-    value: function setVideo(url) {
+    value: function setVideo(streamOrUrl) {
       var asset = this.getValue();
-      if (asset.type !== 'video-stream') {
+      if (asset.type === 'video-stream') {
+        this.__video.srcObject = streamOrUrl;
+      } else {
         this.killStream();
+        this.__video.src = streamOrUrl;
       }
       this.__isVideo = true;
       this.__isAnimated = true;
-      this.__video.src = url;
       this.__video.play().catch(function (e) {
         return console.log(e);
       });
