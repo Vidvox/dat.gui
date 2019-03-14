@@ -179,12 +179,13 @@ class ImageController extends Controller {
 
   updateDisplay() {
     const asset = this.getValue();
+    console.log(asset);
     if (!asset) { return; }
     if (asset.type === 'image') {
       this.setImage(asset.url, false);
     } else if (asset.type === 'gif') {
       this.setImage(asset.url, true);
-    } else if (asset.type === 'video') {
+    } else if (asset.type === 'video' || asset.type === 'video-stream') {
       this.setVideo(asset.url);
     }
   }
@@ -278,7 +279,6 @@ class ImageController extends Controller {
     }
     this.__isVideo = true;
     this.__isAnimated = true;
-    console.log(this.__video);
     this.__video.play().catch(e => console.log(e, e.message, e.name));
     this.__video.loop = true;
     this.__video.volume = 0;

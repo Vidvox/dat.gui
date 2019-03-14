@@ -2460,6 +2460,7 @@ var ImageController = function (_Controller) {
     key: 'updateDisplay',
     value: function updateDisplay() {
       var asset = this.getValue();
+      console.log(asset);
       if (!asset) {
         return;
       }
@@ -2467,7 +2468,7 @@ var ImageController = function (_Controller) {
         this.setImage(asset.url, false);
       } else if (asset.type === 'gif') {
         this.setImage(asset.url, true);
-      } else if (asset.type === 'video') {
+      } else if (asset.type === 'video' || asset.type === 'video-stream') {
         this.setVideo(asset.url);
       }
     }
@@ -2562,7 +2563,6 @@ var ImageController = function (_Controller) {
       }
       this.__isVideo = true;
       this.__isAnimated = true;
-      console.log(this.__video);
       this.__video.play().catch(function (e) {
         return console.log(e, e.message, e.name);
       });
