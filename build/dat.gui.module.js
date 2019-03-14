@@ -2553,6 +2553,7 @@ var ImageController = function (_Controller) {
     key: 'setVideo',
     value: function setVideo(streamOrUrl) {
       var asset = this.getValue();
+      console.log(asset);
       if (asset.type === 'video-stream') {
         this.__video.srcObject = streamOrUrl;
       } else {
@@ -2561,8 +2562,9 @@ var ImageController = function (_Controller) {
       }
       this.__isVideo = true;
       this.__isAnimated = true;
+      console.log(this.__video);
       this.__video.play().catch(function (e) {
-        return console.log(e);
+        return console.log(e, e.message, e.name);
       });
       this.__video.loop = true;
       this.__video.volume = 0;
