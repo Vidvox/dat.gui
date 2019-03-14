@@ -119,14 +119,13 @@ class ImageController extends Controller {
 
     function videoStarted(localMediaStream) {
       this.killStream();
-      const url = URL.createObjectURL(localMediaStream);
       this.videoStreams.push(localMediaStream);
       this.setValue({
         type: 'video-stream',
-        value: URL.createObjectURL(localMediaStream),
+        value: localMediaStream,
         domElement: this.__video
       });
-      this.setVideo(url);
+      this.setVideo(localMediaStream);
     }
 
     function videoError(error) {
@@ -268,14 +267,16 @@ class ImageController extends Controller {
     this.__video.src = '';
   }
 
-  setVideo(url) {
+  setVideo(streamOrUrl) {
     const asset = this.getValue();
-    if (asset.type !== 'video-stream') {
+    if (asset.type === 'video-stream') {
+      this.__video.srcObject = streamOrUrl;
+    } else {
       this.killStream();
+      this.__video.src = streamOrUrl;
     }
     this.__isVideo = true;
     this.__isAnimated = true;
-    this.__video.src = url;
     this.__video.play().catch(e => console.log(e));
     this.__video.loop = true;
     this.__video.volume = 0;
