@@ -2554,8 +2554,9 @@ var ImageController = function (_Controller) {
     key: 'setVideo',
     value: function setVideo(streamOrUrl) {
       var asset = this.getValue();
+      if (!streamOrUrl) return;
       console.log(asset);
-      console.log(streamOrUrl);
+      console.log('stream or url', streamOrUrl);
       if (asset.type === 'video-stream') {
         this.__video.srcObject = streamOrUrl;
       } else {
