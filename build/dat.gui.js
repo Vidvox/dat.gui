@@ -2401,17 +2401,15 @@ var ImageController = function (_Controller) {
     }
     function videoStarted(localMediaStream) {
       this.killStream();
-      var url = URL.createObjectURL(localMediaStream);
       this.videoStreams.push(localMediaStream);
       this.setValue({
         type: 'video-stream',
-        value: URL.createObjectURL(localMediaStream),
+        value: localMediaStream,
         domElement: this.__video
       });
-      this.setVideo(url);
+      this.setVideo(localMediaStream);
     }
     function videoError(error) {
-      console.log(error);
       this.killStream();
     }
     _this.domElement.appendChild(_this.__controlContainer);
@@ -2474,8 +2472,10 @@ var ImageController = function (_Controller) {
         this.setImage(asset.url, false);
       } else if (asset.type === 'gif') {
         this.setImage(asset.url, true);
-      } else if (asset.type === 'video' || asset.type === 'video-stream') {
+      } else if (asset.type === 'video') {
         this.setVideo(asset.url);
+      } else if (asset.type === 'video-stream') {
+        this.setVideo(asset.value);
       }
     }
   }, {
@@ -2504,7 +2504,7 @@ var ImageController = function (_Controller) {
           });
           this.setImage(_url, false);
         }
-      } else if (!this.__disableVideo && type === 'video' || type === 'video-stream') {
+      } else if (!this.__disableVideo && type === 'video') {
         this.setValue({
           url: url,
           type: 'video',
@@ -2558,19 +2558,22 @@ var ImageController = function (_Controller) {
     }
   }, {
     key: 'setVideo',
-    value: function setVideo(url) {
+    value: function setVideo(streamOrUrl) {
       var asset = this.getValue();
-      if (asset.type !== 'video-stream') {
+      if (!streamOrUrl) return;
+      if (asset.type === 'video-stream') {
+        this.__video.srcObject = streamOrUrl;
+      } else {
         this.killStream();
+        this.__video.src = streamOrUrl;
       }
       this.__isVideo = true;
       this.__isAnimated = true;
-      this.__video.src = url;
-      this.__video.play().catch(function (e) {
-        return console.log(e);
-      });
       this.__video.loop = true;
       this.__video.volume = 0;
+      this.__video.play().catch(function (e) {
+        console.log(e, e.message, e.name);
+      });
       this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
       this.__img.style.display = 'none';
       if (this.__glGif.get_canvas()) {

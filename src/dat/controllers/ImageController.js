@@ -18,7 +18,7 @@ class ImageController extends Controller {
     this.__controlContainer = document.createElement('div');
     dom.addClass(this.__controlContainer, 'image-picker');
     this.videoStreams = [];
-    
+
     this.__selectedInputContainer = this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(this.__selectedInputContainer, 'selected-image');
 
@@ -35,7 +35,7 @@ class ImageController extends Controller {
     dom.addClass(this.__swatchButtons, 'swatch-buttons');
 
     this.__swatchImages = this.__swatches.appendChild(document.createElement('div'));
-    this.__disableVideo = disableVideo; 
+    this.__disableVideo = disableVideo;
     dom.addClass(this.__swatchImages, 'swatch-images');
     this.__useCamera = navigator.getUserMedia && !disableVideo;
 
@@ -119,18 +119,16 @@ class ImageController extends Controller {
 
     function videoStarted(localMediaStream) {
       this.killStream();
-      const url = URL.createObjectURL(localMediaStream);
       this.videoStreams.push(localMediaStream);
       this.setValue({
         type: 'video-stream',
-        value: URL.createObjectURL(localMediaStream),
+        value: localMediaStream,
         domElement: this.__video
       });
-      this.setVideo(url);
+      this.setVideo(localMediaStream);
     }
 
     function videoError(error) {
-      console.log(error); // eslint-disable-line
       this.killStream();
     }
 
@@ -185,8 +183,10 @@ class ImageController extends Controller {
       this.setImage(asset.url, false);
     } else if (asset.type === 'gif') {
       this.setImage(asset.url, true);
-    } else if (asset.type === 'video' || asset.type === 'video-stream') {
+    } else if (asset.type === 'video') {
       this.setVideo(asset.url);
+    } else if (asset.type === 'video-stream') {
+      this.setVideo(asset.value);
     }
   }
 
@@ -215,7 +215,7 @@ class ImageController extends Controller {
         });
         this.setImage(url, false);
       }
-    } else if (!this.__disableVideo && type === 'video' || type === 'video-stream') {
+    } else if (!this.__disableVideo && type === 'video') {
       this.setValue({
         url: url,
         type: 'video',
@@ -268,17 +268,22 @@ class ImageController extends Controller {
     this.__video.src = '';
   }
 
-  setVideo(url) {
+  setVideo(streamOrUrl) {
     const asset = this.getValue();
-    if (asset.type !== 'video-stream') {
+    if (!streamOrUrl) return;
+    if (asset.type === 'video-stream') {
+      this.__video.srcObject = streamOrUrl;
+    } else {
       this.killStream();
+      this.__video.src = streamOrUrl;
     }
     this.__isVideo = true;
     this.__isAnimated = true;
-    this.__video.src = url;
-    this.__video.play().catch(e => console.log(e));
     this.__video.loop = true;
     this.__video.volume = 0;
+    this.__video.play().catch(e => {
+      console.log(e, e.message, e.name)
+    });
     this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
     this.__img.style.display = 'none';
     if (this.__glGif.get_canvas()) {
