@@ -2410,7 +2410,6 @@ var ImageController = function (_Controller) {
       this.setVideo(localMediaStream);
     }
     function videoError(error) {
-      console.log(error);
       this.killStream();
     }
     _this.domElement.appendChild(_this.__controlContainer);
@@ -2466,7 +2465,6 @@ var ImageController = function (_Controller) {
     key: 'updateDisplay',
     value: function updateDisplay() {
       var asset = this.getValue();
-      console.log(asset);
       if (!asset) {
         return;
       }
@@ -2474,8 +2472,10 @@ var ImageController = function (_Controller) {
         this.setImage(asset.url, false);
       } else if (asset.type === 'gif') {
         this.setImage(asset.url, true);
-      } else if (asset.type === 'video' || asset.type === 'video-stream') {
+      } else if (asset.type === 'video') {
         this.setVideo(asset.url);
+      } else if (asset.type === 'video-stream') {
+        this.setVideo(asset.value);
       }
     }
   }, {
@@ -2504,7 +2504,7 @@ var ImageController = function (_Controller) {
           });
           this.setImage(_url, false);
         }
-      } else if (!this.__disableVideo && type === 'video' || type === 'video-stream') {
+      } else if (!this.__disableVideo && type === 'video') {
         this.setValue({
           url: url,
           type: 'video',
@@ -2561,8 +2561,6 @@ var ImageController = function (_Controller) {
     value: function setVideo(streamOrUrl) {
       var asset = this.getValue();
       if (!streamOrUrl) return;
-      console.log(asset);
-      console.log('stream or url', streamOrUrl);
       if (asset.type === 'video-stream') {
         this.__video.srcObject = streamOrUrl;
       } else {
@@ -2571,10 +2569,11 @@ var ImageController = function (_Controller) {
       }
       this.__isVideo = true;
       this.__isAnimated = true;
-      this.__video.play().catch(function (e) {
-        return console.log(e, e.message, e.name);
-      });
+      this.__video.loop = true;
       this.__video.volume = 0;
+      this.__video.play().catch(function (e) {
+        console.log(e, e.message, e.name);
+      });
       this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
       this.__img.style.display = 'none';
       if (this.__glGif.get_canvas()) {
