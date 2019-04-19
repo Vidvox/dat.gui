@@ -113,23 +113,20 @@ class ImageController extends Controller {
     }
 
     function onCameraClick() {
-      navigator.getUserMedia({ video: true }, videoStarted.bind(this), videoError.bind(this));
-    }
-
-
-    function videoStarted(localMediaStream) {
-      this.killStream();
-      this.videoStreams.push(localMediaStream);
-      this.setValue({
-        type: 'video-stream',
-        value: localMediaStream,
-        domElement: this.__video
-      });
-      this.setVideo(localMediaStream);
-    }
-
-    function videoError(error) {
-      this.killStream();
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(localMediaStream => {
+          this.killStream();
+          this.videoStreams.push(localMediaStream);
+          this.setValue({
+            type: 'video-stream',
+            value: localMediaStream,
+            domElement: this.__video
+          });
+          this.__video.srcObject = localMediaStream;
+        })
+        .catch(err => {
+          this.killStream();
+        })
     }
 
     // at the end
@@ -167,7 +164,7 @@ class ImageController extends Controller {
         type: asset.type,
         domElement: this.__img
       });
-    } else if (asset.type === 'video' || asset.type === 'video-stream') {
+    } else if (asset.type === 'video') {
       this.setValue({
         url: asset.url,
         type: asset.type,
@@ -221,7 +218,7 @@ class ImageController extends Controller {
         type: 'video',
         domElement: this.__video
       });
-      this.setVideo(URL.createObjectURL(file));
+      this.setVideo();
     }
   }
 
@@ -268,14 +265,13 @@ class ImageController extends Controller {
     this.__video.src = '';
   }
 
-  setVideo(streamOrUrl) {
+  setVideo() {
     const asset = this.getValue();
-    if (!streamOrUrl) return;
     if (asset.type === 'video-stream') {
-      this.__video.srcObject = streamOrUrl;
+      this.__video.srcObject = asset.value;
     } else {
       this.killStream();
-      this.__video.src = streamOrUrl;
+      this.__video.src = asset.url;
     }
     this.__isVideo = true;
     this.__isAnimated = true;
@@ -305,7 +301,6 @@ class ImageController extends Controller {
           type: 'video',
           domElement: this.__video
         });
-        this.setVideo(videoSrc);
       } else {
         const isAnimated = src.split('.').pop() === 'gif';
         if (isAnimated) {
