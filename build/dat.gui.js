@@ -2397,20 +2397,18 @@ var ImageController = function (_Controller) {
       this.parseFile(file);
     }
     function onCameraClick() {
-      navigator.getUserMedia({ video: true }, videoStarted.bind(this), videoError.bind(this));
-    }
-    function videoStarted(localMediaStream) {
-      this.killStream();
-      this.videoStreams.push(localMediaStream);
-      this.setValue({
-        type: 'video-stream',
-        value: localMediaStream,
-        domElement: this.__video
+      var _this2 = this;
+      navigator.mediaDevices.getUserMedia({ video: true }).then(function (localMediaStream) {
+        _this2.killStream();
+        _this2.videoStream = localMediaStream;
+        _this2.setValue({
+          type: 'video-stream',
+          value: localMediaStream,
+          domElement: _this2.__video
+        });
+      }).catch(function (err) {
+        _this2.killStream();
       });
-      this.setVideo(localMediaStream);
-    }
-    function videoError(error) {
-      this.killStream();
     }
     _this.domElement.appendChild(_this.__controlContainer);
     return _this;
@@ -2418,12 +2416,10 @@ var ImageController = function (_Controller) {
   createClass(ImageController, [{
     key: 'killStream',
     value: function killStream() {
-      this.videoStreams.forEach(function (stream) {
-        return stream.getTracks().forEach(function (track) {
-          return track.stop();
-        });
+      if (!this.videoStream) return;
+      this.videoStream.getTracks().forEach(function (track) {
+        return track.stop();
       });
-      this.videoStreams = [];
     }
   }, {
     key: 'destruct',
@@ -2453,7 +2449,7 @@ var ImageController = function (_Controller) {
           type: asset.type,
           domElement: this.__img
         });
-      } else if (asset.type === 'video' || asset.type === 'video-stream') {
+      } else if (asset.type === 'video') {
         this.setValue({
           url: asset.url,
           type: asset.type,
@@ -2510,13 +2506,13 @@ var ImageController = function (_Controller) {
           type: 'video',
           domElement: this.__video
         });
-        this.setVideo(URL.createObjectURL(file));
+        this.setVideo();
       }
     }
   }, {
     key: 'setImage',
     value: function setImage(url, isAnimated) {
-      var _this2 = this;
+      var _this3 = this;
       if (this.__skipSetImage) {
         this.__skipSetImage = false;
         return;
@@ -2532,16 +2528,16 @@ var ImageController = function (_Controller) {
         }
         this.__glGif.load(function (err) {
           if (!err) {
-            _this2.__glGif.play().catch(function (e) {
+            _this3.__glGif.play().catch(function (e) {
               return console.log(e);
             });
-            if (_this2.__gifNeedsInitializing) {
-              _this2.__gifNeedsInitializing = false;
-              _this2.__skipSetImage = true;
-              _this2.setValue({
+            if (_this3.__gifNeedsInitializing) {
+              _this3.__gifNeedsInitializing = false;
+              _this3.__skipSetImage = true;
+              _this3.setValue({
                 url: url,
                 type: 'gif',
-                domElement: _this2.__glGif.get_canvas()
+                domElement: _this3.__glGif.get_canvas()
               });
             }
           }
@@ -2558,14 +2554,13 @@ var ImageController = function (_Controller) {
     }
   }, {
     key: 'setVideo',
-    value: function setVideo(streamOrUrl) {
+    value: function setVideo() {
       var asset = this.getValue();
-      if (!streamOrUrl) return;
       if (asset.type === 'video-stream') {
-        this.__video.srcObject = streamOrUrl;
+        this.__video.srcObject = asset.value;
       } else {
         this.killStream();
-        this.__video.src = streamOrUrl;
+        this.__video.src = asset.url;
       }
       this.__isVideo = true;
       this.__isAnimated = true;
@@ -2584,36 +2579,35 @@ var ImageController = function (_Controller) {
   }, {
     key: 'addSwatch',
     value: function addSwatch(src, videoSrc) {
-      var _this3 = this;
+      var _this4 = this;
       var swatch = this.__swatchImages.appendChild(document.createElement('img'));
       swatch.src = src;
       swatch.videoSrc = videoSrc;
       swatch.className = 'swatch';
       dom.bind(swatch, 'click', function () {
         if (videoSrc) {
-          _this3.setValue({
+          _this4.setValue({
             url: videoSrc,
             type: 'video',
-            domElement: _this3.__video
+            domElement: _this4.__video
           });
-          _this3.setVideo(videoSrc);
         } else {
           var isAnimated = src.split('.').pop() === 'gif';
           if (isAnimated) {
-            if (_this3.__gifNeedsInitializing) {
-              _this3.setImage(url, true);
+            if (_this4.__gifNeedsInitializing) {
+              _this4.setImage(url, true);
             } else {
-              _this3.setValue({
+              _this4.setValue({
                 url: src,
                 type: 'gif',
-                domElement: _this3.__glGif.get_canvas()
+                domElement: _this4.__glGif.get_canvas()
               });
             }
           } else {
-            _this3.setValue({
+            _this4.setValue({
               url: src,
               type: 'image',
-              domElement: _this3.__img
+              domElement: _this4.__img
             });
           }
         }
