@@ -116,13 +116,12 @@ class ImageController extends Controller {
       navigator.mediaDevices.getUserMedia({ video: true })
         .then(localMediaStream => {
           this.killStream();
-          this.videoStreams.push(localMediaStream);
+          this.videoStream = localMediaStream;
           this.setValue({
             type: 'video-stream',
             value: localMediaStream,
             domElement: this.__video
           });
-          this.__video.srcObject = localMediaStream;
         })
         .catch(err => {
           this.killStream();
@@ -134,10 +133,8 @@ class ImageController extends Controller {
   }
 
   killStream() {
-    this.videoStreams.forEach(stream =>
-      stream.getTracks().forEach(track =>
-        track.stop()));
-    this.videoStreams = [];
+    if (!this.videoStream) return;
+    this.videoStream.getTracks().forEach(track => track.stop());
   }
 
   destruct() {
