@@ -2522,9 +2522,7 @@ var ImageController = function (_Controller) {
         }
         this.__glGif.load(function (err) {
           if (!err) {
-            _this3.__glGif.play().catch(function (e) {
-              return console.log(e);
-            });
+            _this3.__glGif.play();
             if (_this3.__gifNeedsInitializing) {
               _this3.__gifNeedsInitializing = false;
               _this3.__skipSetImage = true;
@@ -3582,6 +3580,9 @@ function _add(gui, object, property, params) {
     throw new Error('Object "' + object + '" has no property "' + property + '"');
   }
   var controller = void 0;
+  console.log('object:', object);
+  console.log('gui:', gui);
+  console.log('params:', params);
   if (params.color) {
     controller = new ColorController(object, property);
   } else if (params.image) {

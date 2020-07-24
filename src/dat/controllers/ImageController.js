@@ -235,7 +235,7 @@ class ImageController extends Controller {
       }
       this.__glGif.load((err) => {
         if (!err) {
-          this.__glGif.play().catch(e => console.log(e));
+          this.__glGif.play();
           if (this.__gifNeedsInitializing) {
             // only want to call this if the canvas hasn't been initialized yet
             // but don't want to call setImage again
