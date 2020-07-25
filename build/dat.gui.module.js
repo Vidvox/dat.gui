@@ -2352,6 +2352,7 @@ var ImageController = function (_Controller) {
     _this.__video.crossOrigin = 'anonymous';
     _this.__video.setAttribute('playsinline', true);
     _this.__input.type = 'file';
+    _this.__input.accept = 'image/jpeg, image/png, image/gif';
     _this.__gifImg = _this.__selectedInputContainer.appendChild(document.createElement('img'));
     _this.__gifImg.crossOrigin = 'anonymous';
     dom.addClass(_this.__gifImg, 'content gif-img');
@@ -2553,6 +2554,7 @@ var ImageController = function (_Controller) {
       } else {
         this.killStream();
         this.__video.src = asset.url;
+        this.__video.srcObject = null;
       }
       this.__isVideo = true;
       this.__isAnimated = true;
@@ -3580,9 +3582,6 @@ function _add(gui, object, property, params) {
     throw new Error('Object "' + object + '" has no property "' + property + '"');
   }
   var controller = void 0;
-  console.log('object:', object);
-  console.log('gui:', gui);
-  console.log('params:', params);
   if (params.color) {
     controller = new ColorController(object, property);
   } else if (params.image) {

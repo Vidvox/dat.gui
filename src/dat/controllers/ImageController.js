@@ -64,6 +64,7 @@ class ImageController extends Controller {
     // as of iOS10 you don't need the prefix
     this.__video.setAttribute('playsinline', true);
     this.__input.type = 'file';
+    this.__input.accept = 'image/jpeg, image/png, image/gif';
 
     this.__gifImg = this.__selectedInputContainer.appendChild(document.createElement('img'));
     this.__gifImg.crossOrigin = 'anonymous';
@@ -269,6 +270,7 @@ class ImageController extends Controller {
     } else {
       this.killStream();
       this.__video.src = asset.url;
+      this.__video.srcObject = null;
     }
     this.__isVideo = true;
     this.__isAnimated = true;
